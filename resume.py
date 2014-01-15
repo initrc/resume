@@ -124,14 +124,15 @@ def html(lines, contact_lines, *args):
     for word in untex:
         # yuck
         replace = lambda l: l.replace(r"\%s" % word, word)
-        lines = map(replace, lines)
-        contact_lines = map(replace, contact_lines)
+        lines = list(map(replace, lines))
+        contact_lines = list(map(replace, contact_lines))
 
     gravatar = None
     for line in contact_lines:
         if '@' in line and '--no-gravatar' not in args:
             gravatar = GRAVATAR.format(
-                hash=hashlib.md5(line.lower().strip('<>')).hexdigest())
+                hash=hashlib.md5(line.lower().strip('<>').encode('utf-8'))
+                            .hexdigest())
             break
     if gravatar is not None:
         contact_lines.insert(0, "<img src='{}' />".format(gravatar))
@@ -166,7 +167,7 @@ def main():
 
         contact_lines.extend(parts)
 
-    print processor.process(format, lines, contact_lines, *sys.argv[1:])
+    print(processor.process(format, lines, contact_lines, *sys.argv[1:]))
 
 if __name__ == '__main__':
     main()
